@@ -264,7 +264,7 @@
             background: #4a7a9a;
         }
 
-        /* ===== INFO BAR ===== */
+        /* ===== INFO BAR (вне канваса) ===== */
         .info-bar {
             display: flex;
             flex-wrap: wrap;
@@ -298,7 +298,7 @@
             color: #e8543a;
         }
 
-        /* ===== SPRAVOCHNAYA INFO ===== */
+        /* ===== СПРАВОЧНАЯ ПАНЕЛЬ (формулы + константы) ===== */
         .info-reference {
             margin-top: 14px;
             padding: 12px 16px;
@@ -307,41 +307,51 @@
             border: 1px solid #3a4a5e;
             display: flex;
             flex-wrap: wrap;
-            gap: 10px 20px;
-            font-size: 15px;
-            color: #b8c8dc;
-            align-items: center;
+            gap: 10px 12px;
+            justify-content: center;
+            align-items: stretch;
         }
         .info-reference .ref-item {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 6px;
+            justify-content: center;
             background: #0f1620;
-            padding: 4px 14px;
-            border-radius: 30px;
+            padding: 8px 14px;
+            border-radius: 12px;
             border: 1px solid #2a3a4a;
+            min-width: 130px;
+            flex: 0 1 auto;
+            text-align: center;
+            font-size: 13px;
+            line-height: 1.4;
+            transition: border-color 0.2s;
         }
         .info-reference .ref-item .label {
-            opacity: 0.8;
+            font-size: 11px;
+            opacity: 0.7;
             font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
         }
         .info-reference .ref-item .value {
             font-weight: 600;
             color: #e8ecf1;
             font-family: 'Courier New', monospace;
+            font-size: 14px;
         }
         .info-reference .ref-item .value.math {
             color: #7ddfb0;
-            font-size: 1.1em;
+            font-size: 15px;
         }
-        .info-reference .ref-item .value.math.big {
-            font-size: 1.3em;
-            font-weight: 700;
-        }
-        .info-reference .ref-item.highlight-formula {
-            background: #1a2a3a;
+        .info-reference .ref-item.highlight {
             border-color: #4a8a7a;
-            box-shadow: 0 0 12px rgba(125, 223, 176, 0.15);
+            background: #1a2a3a;
+            box-shadow: 0 0 12px rgba(125, 223, 176, 0.08);
+        }
+        .info-reference .ref-item .sub {
+            font-size: 0.85em;
         }
 
         /* ===== RESPONSIVE ===== */
@@ -356,9 +366,9 @@
             .btn { padding: 6px 16px; font-size: 13px; }
             .control-group .number-input { width: 60px; font-size: 13px; }
             .info-bar { font-size: 12px; gap: 6px 12px; }
-            .info-reference { font-size: 13px; gap: 8px 14px; flex-direction: column; align-items: flex-start; }
-            .info-reference .ref-item { padding: 4px 12px; }
-            .info-reference .ref-item .value.math.big { font-size: 1.1em; }
+            .info-reference { gap: 8px; padding: 10px; }
+            .info-reference .ref-item { min-width: 100px; padding: 6px 10px; font-size: 12px; }
+            .info-reference .ref-item .value { font-size: 13px; }
         }
         @media (max-width: 480px) {
             .header-left h1 { font-size: 15px; }
@@ -367,6 +377,8 @@
             .btn { font-size: 12px; padding: 5px 12px; }
             .control-group label { font-size: 12px; min-width: 60px; }
             .control-group .number-input { width: 50px; font-size: 12px; }
+            .info-reference .ref-item { min-width: 80px; font-size: 11px; padding: 4px 8px; }
+            .info-reference .ref-item .value { font-size: 12px; }
         }
     </style>
 </head>
@@ -425,7 +437,7 @@
             </div>
         </div>
 
-        <!-- INFO BAR -->
+        <!-- INFO BAR (вне канваса, дублирует статус) -->
         <div class="info-bar">
             <div class="info-item">
                 <span>🌬️ Ветер:</span>
@@ -448,35 +460,53 @@
             </div>
         </div>
 
-        <!-- СПРАВОЧНАЯ ИНФОРМАЦИЯ (обновлена) -->
+        <!-- СПРАВОЧНАЯ ПАНЕЛЬ: формулы и константы (плитки одного размера) -->
         <div class="info-reference">
-            <div class="ref-item highlight-formula">
-                <span class="label">Закон сохранения энергии:</span>
-                <span class="value math big">η·m<sub>п</sub>·E<sub>уд</sub> = m<sub>сн</sub>·v²/2</span>
+            <!-- Формулы -->
+            <div class="ref-item highlight">
+                <span class="label">Закон сохранения энергии</span>
+                <span class="value math">η·m<sub>п</sub>·E<sub>уд</sub> = m<sub>сн</sub>·v²/2</span>
             </div>
             <div class="ref-item">
-                <span class="label">Кинетическая энергия:</span>
+                <span class="label">Кинетическая энергия</span>
                 <span class="value math">Eₖ = mv²/2</span>
             </div>
             <div class="ref-item">
-                <span class="label">v<sub>y</sub> =</span>
-                <span class="value math">v₀·sin(α)</span>
+                <span class="label">Вертикальная скорость</span>
+                <span class="value math">v<sub>y</sub> = v₀·sin(α)</span>
             </div>
             <div class="ref-item">
-                <span class="label">v<sub>x</sub> =</span>
-                <span class="value math">v₀·cos(α)</span>
+                <span class="label">Горизонтальная скорость</span>
+                <span class="value math">v<sub>x</sub> = v₀·cos(α)</span>
             </div>
             <div class="ref-item">
-                <span class="label">Сопр. воздуха:</span>
+                <span class="label">Сопротивление воздуха</span>
                 <span class="value math">F = k·v²</span>
             </div>
-            <div class="ref-item" style="border-color:#5a7a5a;">
-                <span class="label">КПД взрыва:</span>
-                <span class="value" style="color:#7ddfb0;">η = 30%</span>
+            <!-- Константы -->
+            <div class="ref-item">
+                <span class="label">Масса снаряда</span>
+                <span class="value">43.5 кг</span>
             </div>
-            <div class="ref-item" style="border-color:#5a7a5a;">
-                <span class="label">Точность попадания:</span>
+            <div class="ref-item">
+                <span class="label">Уд. энергия пороха</span>
+                <span class="value">3.5 МДж/кг</span>
+            </div>
+            <div class="ref-item">
+                <span class="label">КПД</span>
+                <span class="value">η = 30%</span>
+            </div>
+            <div class="ref-item">
+                <span class="label">Коэф. сопротивления</span>
+                <span class="value">k = 0.0012</span>
+            </div>
+            <div class="ref-item">
+                <span class="label">Точность попадания</span>
                 <span class="value" style="color:#7ddfb0;">±3 м</span>
+            </div>
+            <div class="ref-item">
+                <span class="label">Дальность цели</span>
+                <span class="value">300 – 15000 м</span>
             </div>
         </div>
     </div>
@@ -532,7 +562,7 @@
             const E_powder = m_kg * POWDER_ENERGY;
             const E_projectile = E_powder * EFFICIENCY;
             const v = Math.sqrt(2 * E_projectile / MASS_SHELL);
-            return Math.min(v, 600); // ограничим 600 м/с для стабильности
+            return Math.min(v, 600);
         }
 
         // ---- СОСТОЯНИЕ ИГРЫ ----
@@ -561,32 +591,26 @@
             shotCount: 0,
         };
 
-        // ---- ГЕНЕРАЦИЯ УРОВНЕЙ (дистанция до 15000 м) ----
+        // ---- ГЕНЕРАЦИЯ УРОВНЕЙ ----
         function generateLevel(level) {
-            // Дистанция от 300 до 15000 м, растёт с уровнем
             const minDist = 300;
             const maxDist = 15000;
-            const progress = (level - 1) / (state.maxLevel - 1); // 0..1
+            const progress = (level - 1) / (state.maxLevel - 1);
             const baseDist = minDist + progress * (maxDist - minDist);
-            // Добавляем случайное отклонение ±10%
             const variation = baseDist * 0.1;
             const targetDist = baseDist + (Math.random() - 0.5) * variation;
             const targetDistClamped = Math.max(minDist, Math.min(maxDist, Math.round(targetDist)));
 
-            // Ветер: усиливается с уровнем
             const windStrength = (level - 1) * 0.9 + (Math.random() - 0.5) * 1.8;
             const windDir = Math.random() > 0.5 ? 1 : -1;
             const wind = Math.min(WIND_MAX, Math.max(WIND_MIN, windDir * (0.5 + Math.abs(windStrength))));
 
-            // Препятствия: количество зависит от уровня, но они не должны мешать на больших дистанциях
             let obstacleCount = 0;
             if (level >= 3 && level <= 8) obstacleCount = 1;
             else if (level > 8) obstacleCount = 2;
-            // На высоких уровнях иногда 2-3
             if (level >= 6 && Math.random() < 0.3) obstacleCount = Math.min(3, obstacleCount + 1);
 
             const obstacles = [];
-            // Препятствия размещаем только в первой трети дистанции, чтобы не мешать прицеливанию на дальние цели
             const maxObsX = Math.min(targetDistClamped * 0.4, 3000);
             for (let i = 0; i < obstacleCount; i++) {
                 const minX = 120 + i * 200 + Math.random() * 100;
@@ -638,12 +662,10 @@
             rangeDisplay.textContent = '—';
             fireBtn.disabled = false;
 
-            // Начальные параметры: заряд подбираем примерно под дальность
             let suggestedPowder = 300 + (level - 1) * 200;
             suggestedPowder = Math.min(6000, Math.max(200, suggestedPowder));
             powderSlider.value = suggestedPowder;
             powderInput.value = suggestedPowder;
-            // Угол: для дальних целей угол около 45-50°
             let suggestedAngle = 40 + (level - 1) * 1.2;
             suggestedAngle = Math.min(60, Math.max(20, suggestedAngle));
             angleSlider.value = suggestedAngle;
@@ -734,7 +756,7 @@
             };
         }
 
-        // ---- ПРОВЕРКА ПОПАДАНИЯ (радиус ±3 м) ----
+        // ---- ПРОВЕРКА ПОПАДАНИЯ ----
         function checkHit(shotResult, targetX, targetY, obstacles) {
             const points = shotResult.points;
             if (points.length < 2) return { hit: false, reason: 'Не долетел' };
@@ -822,13 +844,12 @@
             draw();
         }
 
-        // ---- ОТРИСОВКА ----
+        // ---- ОТРИСОВКА (исправлено расположение окон) ----
         function draw() {
             const ctx2 = ctx;
             ctx2.clearRect(0, 0, W, H);
 
             const targetX = state.targetX;
-            // Масштабируем вид в зависимости от дальности
             const maxDist = Math.max(targetX + 200, 600);
             const maxHeightDisplay = Math.max(state.maxHeight + 30, 120);
 
@@ -938,18 +959,16 @@
                 }
             }
 
-            // ---- ЦЕЛЬ: БЕТОННАЯ ДОТ ----
+            // ---- ЦЕЛЬ: ДОТ ----
             const targetScreen = worldToScreen(state.targetX, 0);
             const tx = targetScreen.x;
             const ty = targetScreen.y;
 
-            // Тень
             ctx2.fillStyle = 'rgba(0,0,0,0.4)';
             ctx2.beginPath();
             ctx2.ellipse(tx, ty + 10, 36, 10, 0, 0, Math.PI * 2);
             ctx2.fill();
 
-            // Бетонный блок
             const dotWidth = 50;
             const dotHeight = 38;
             const dotX = tx - dotWidth/2;
@@ -988,7 +1007,6 @@
             ctx2.fillStyle = '#4a4a4a';
             ctx2.fillRect(ambX + 4, ambY + 7, 2, 2);
 
-            // Трещины
             ctx2.strokeStyle = 'rgba(50,60,60,0.3)';
             ctx2.lineWidth = 0.5;
             ctx2.beginPath();
@@ -1005,48 +1023,85 @@
             ctx2.textAlign = 'center';
             ctx2.fillText('ДОТ', tx, ty - 10);
 
-            // ---- ВЕТЕР ----
-            const wind = state.windSpeed;
-            const windArrowX = 70;
-            const windArrowY = 46;
-            const windLen = Math.min(80, Math.abs(wind) * 4 + 10);
-            const windDir = wind >= 0 ? 1 : -1;
-            ctx2.save();
-            ctx2.translate(windArrowX, windArrowY);
+            // ======== ИНФОРМАЦИОННЫЕ ОКНА НА КАНВАСЕ (исправлено расположение) ========
+
+            // ---- 1. Уровень и дистанция (левый верхний угол) ----
             ctx2.fillStyle = 'rgba(0,0,0,0.5)';
-            ctx2.roundRect(-50, -22, 100, 44, 12);
+            ctx2.roundRect(12, 12, 220, 38, 12);
+            ctx2.fill();
+            ctx2.fillStyle = '#d0dce8';
+            ctx2.font = 'bold 14px system-ui, sans-serif';
+            ctx2.textAlign = 'left';
+            ctx2.fillText(`Уровень ${state.level}  ·  ${Math.round(state.targetX)} м`, 22, 38);
+
+            // ---- 2. Ветер (правый верхний угол) ----
+            const wind = state.windSpeed;
+            const windBoxX = W - 180;
+            const windBoxY = 12;
+            ctx2.fillStyle = 'rgba(0,0,0,0.5)';
+            ctx2.roundRect(windBoxX, windBoxY, 160, 38, 12);
             ctx2.fill();
             ctx2.fillStyle = '#b0c8e0';
             ctx2.font = 'bold 13px system-ui, sans-serif';
-            ctx2.textAlign = 'left';
-            ctx2.fillText('🌬️', -42, 6);
-            ctx2.fillStyle = '#d0dce8';
-            ctx2.font = '12px system-ui, sans-serif';
             ctx2.textAlign = 'center';
             const windStr = `${wind >= 0 ? '→' : '←'} ${Math.abs(wind).toFixed(1)} м/с`;
-            ctx2.fillText(windStr, 4, 6);
-            if (Math.abs(wind) > 0.3) {
-                ctx2.strokeStyle = wind >= 0 ? '#7ddfb0' : '#e88a7a';
-                ctx2.lineWidth = 3;
-                ctx2.beginPath();
-                ctx2.moveTo(-10, 0);
-                ctx2.lineTo(windDir * windLen, 0);
-                ctx2.stroke();
-                ctx2.fillStyle = wind >= 0 ? '#7ddfb0' : '#e88a7a';
-                ctx2.beginPath();
-                const tip = windDir * windLen;
-                ctx2.moveTo(tip, 0);
-                ctx2.lineTo(tip - windDir * 8, -5);
-                ctx2.lineTo(tip - windDir * 8, 5);
-                ctx2.closePath();
-                ctx2.fill();
-            }
-            ctx2.restore();
+            ctx2.fillText(`🌬️ ${windStr}`, windBoxX + 80, windBoxY + 26);
 
-            // ---- ГАУБИЦА ----
+            // ---- 3. Статус выстрела (центр, но с отступом вниз) ----
+            if (state.lastResult && state.lastResult.hit) {
+                ctx2.fillStyle = 'rgba(0,0,0,0.6)';
+                ctx2.roundRect(W/2 - 120, H/2 - 30, 240, 50, 16);
+                ctx2.fill();
+                ctx2.fillStyle = '#7ddfb0';
+                ctx2.font = 'bold 28px system-ui, sans-serif';
+                ctx2.textAlign = 'center';
+                ctx2.fillText('🎯 ПОПАДАНИЕ!', W/2, H/2 + 10);
+            } else if (state.lastResult && !state.lastResult.hit && state.isFiring === false) {
+                ctx2.fillStyle = 'rgba(0,0,0,0.6)';
+                ctx2.roundRect(W/2 - 110, H/2 - 30, 220, 50, 16);
+                ctx2.fill();
+                ctx2.fillStyle = '#e8a07a';
+                ctx2.font = 'bold 24px system-ui, sans-serif';
+                ctx2.textAlign = 'center';
+                let label = '❌ Мимо';
+                if (state.lastResult.reason === 'Недолёт') label = '📉 Недолёт';
+                else if (state.lastResult.reason === 'Перелёт') label = '📈 Перелёт';
+                else if (state.lastResult.reason === 'Препятствие') label = '🧱 Препятствие';
+                ctx2.fillText(label, W/2, H/2 + 10);
+            }
+
+            // ---- 4. Информация о заряде и скорости (правый нижний угол) ----
+            const powder = parseFloat(powderSlider.value);
+            const v0 = getMuzzleVelocity(powder);
+            ctx2.fillStyle = 'rgba(0,0,0,0.4)';
+            ctx2.roundRect(W - 230, H - 50, 218, 38, 12);
+            ctx2.fill();
+            ctx2.fillStyle = '#b0c8e0';
+            ctx2.font = '13px system-ui, sans-serif';
+            ctx2.textAlign = 'right';
+            ctx2.fillText(`Заряд ${Math.round(powder)} г  ·  V₀ ${Math.round(v0)} м/с`, W - 20, H - 26);
+
+            // ---- 5. Прицельная линия ----
+            if (!state.isFiring) {
+                const angleRad = state.angle * Math.PI / 180;
+                const len = 80;
+                const hx = worldToScreen(0, 0);
+                const ex = hx.x + len * Math.cos(angleRad);
+                const ey = hx.y - len * Math.sin(angleRad);
+                ctx2.strokeStyle = 'rgba(255,255,200,0.15)';
+                ctx2.lineWidth = 1;
+                ctx2.setLineDash([4, 6]);
+                ctx2.beginPath();
+                ctx2.moveTo(hx.x, hx.y);
+                ctx2.lineTo(ex, ey);
+                ctx2.stroke();
+                ctx2.setLineDash([]);
+            }
+
+            // ---- ГАУБИЦА (поверх всего) ----
             drawHowitzer(ctx2, worldToScreen(0, 0), state.angle);
 
-            // ---- ТРАЕКТОРИЯ ----
+            // ---- ТРАЕКТОРИЯ И СНАРЯД (поверх всего) ----
             if (state.trajectoryPoints.length > 1) {
                 const pts = state.trajectoryPoints;
                 ctx2.shadowColor = 'rgba(255,200,100,0.08)';
@@ -1077,7 +1132,6 @@
                 }
             }
 
-            // ---- СНАРЯД ----
             if (state.isFiring && state.trajectoryPoints.length > 0) {
                 const lastIdx = state.trajectoryPoints.length - 1;
                 const last = state.trajectoryPoints[lastIdx];
@@ -1119,64 +1173,6 @@
                     ctx2.arc(tsp.x, tsp.y, size, 0, Math.PI * 2);
                     ctx2.fill();
                 }
-            }
-
-            // ---- ИНФО НА КАНВАСЕ ----
-            ctx2.fillStyle = 'rgba(0,0,0,0.4)';
-            ctx2.roundRect(12, 12, 200, 38, 12);
-            ctx2.fill();
-            ctx2.fillStyle = '#d0dce8';
-            ctx2.font = 'bold 14px system-ui, sans-serif';
-            ctx2.textAlign = 'left';
-            ctx2.fillText(`Уровень ${state.level}  ·  ${Math.round(state.targetX)} м`, 22, 38);
-
-            if (state.lastResult && state.lastResult.hit) {
-                ctx2.fillStyle = 'rgba(0,0,0,0.5)';
-                ctx2.roundRect(W / 2 - 100, 20, 200, 44, 16);
-                ctx2.fill();
-                ctx2.fillStyle = '#7ddfb0';
-                ctx2.font = 'bold 24px system-ui, sans-serif';
-                ctx2.textAlign = 'center';
-                ctx2.fillText('🎯 ПОПАДАНИЕ!', W / 2, 54);
-            } else if (state.lastResult && !state.lastResult.hit && state.isFiring === false) {
-                ctx2.fillStyle = 'rgba(0,0,0,0.5)';
-                ctx2.roundRect(W / 2 - 90, 20, 180, 38, 16);
-                ctx2.fill();
-                ctx2.fillStyle = '#e8a07a';
-                ctx2.font = 'bold 18px system-ui, sans-serif';
-                ctx2.textAlign = 'center';
-                let label = '❌ Мимо';
-                if (state.lastResult.reason === 'Недолёт') label = '📉 Недолёт';
-                else if (state.lastResult.reason === 'Перелёт') label = '📈 Перелёт';
-                else if (state.lastResult.reason === 'Препятствие') label = '🧱 Препятствие';
-                ctx2.fillText(label, W / 2, 46);
-            }
-
-            const powder = parseFloat(powderSlider.value);
-            const v0 = getMuzzleVelocity(powder);
-            ctx2.fillStyle = 'rgba(0,0,0,0.35)';
-            ctx2.roundRect(W - 220, H - 50, 208, 38, 12);
-            ctx2.fill();
-            ctx2.fillStyle = '#b0c8e0';
-            ctx2.font = '13px system-ui, sans-serif';
-            ctx2.textAlign = 'right';
-            ctx2.fillText(`Заряд ${Math.round(powder)} г  ·  V₀ ${Math.round(v0)} м/с`, W - 20, H - 26);
-
-            // Прицельная линия
-            if (!state.isFiring) {
-                const angleRad = state.angle * Math.PI / 180;
-                const len = 80;
-                const hx = worldToScreen(0, 0);
-                const ex = hx.x + len * Math.cos(angleRad);
-                const ey = hx.y - len * Math.sin(angleRad);
-                ctx2.strokeStyle = 'rgba(255,255,200,0.15)';
-                ctx2.lineWidth = 1;
-                ctx2.setLineDash([4, 6]);
-                ctx2.beginPath();
-                ctx2.moveTo(hx.x, hx.y);
-                ctx2.lineTo(ex, ey);
-                ctx2.stroke();
-                ctx2.setLineDash([]);
             }
         }
 
@@ -1319,7 +1315,6 @@
             if (!state.isFiring) draw();
         }
 
-        // ---- ОБРАБОТЧИКИ ДЛЯ ПОЛЕЙ ВВОДА ----
         angleInput.addEventListener('input', function() {
             let val = parseFloat(this.value);
             if (isNaN(val)) return;
@@ -1404,7 +1399,7 @@
         init();
         window.addEventListener('resize', () => { resizeCanvas(); draw(); });
 
-        console.log('🎯 Артиллерия 2D (дальность до 15000 м, заряд до 8000 г) загружена!');
+        console.log('🎯 Артиллерия 2D (исправлены окна, добавлены константы) загружена!');
     </script>
 </body>
 </html>
