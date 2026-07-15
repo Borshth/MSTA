@@ -27,7 +27,7 @@
             border-radius: 24px;
             padding: 20px 24px 24px 24px;
             box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7);
-            max-width: 1100px;
+            max-width: 1200px;
             width: 100%;
             border: 1px solid #3e4a5e;
         }
@@ -307,8 +307,8 @@
             border: 1px solid #3a4a5e;
             display: flex;
             flex-wrap: wrap;
-            gap: 8px 18px;
-            font-size: 13px;
+            gap: 10px 20px;
+            font-size: 15px;
             color: #b8c8dc;
             align-items: center;
         }
@@ -317,7 +317,7 @@
             align-items: center;
             gap: 6px;
             background: #0f1620;
-            padding: 2px 12px;
+            padding: 4px 14px;
             border-radius: 30px;
             border: 1px solid #2a3a4a;
         }
@@ -332,6 +332,16 @@
         }
         .info-reference .ref-item .value.math {
             color: #7ddfb0;
+            font-size: 1.1em;
+        }
+        .info-reference .ref-item .value.math.big {
+            font-size: 1.3em;
+            font-weight: 700;
+        }
+        .info-reference .ref-item.highlight-formula {
+            background: #1a2a3a;
+            border-color: #4a8a7a;
+            box-shadow: 0 0 12px rgba(125, 223, 176, 0.15);
         }
 
         /* ===== RESPONSIVE ===== */
@@ -346,8 +356,9 @@
             .btn { padding: 6px 16px; font-size: 13px; }
             .control-group .number-input { width: 60px; font-size: 13px; }
             .info-bar { font-size: 12px; gap: 6px 12px; }
-            .info-reference { font-size: 11px; gap: 6px 12px; flex-direction: column; align-items: flex-start; }
-            .info-reference .ref-item { padding: 2px 10px; }
+            .info-reference { font-size: 13px; gap: 8px 14px; flex-direction: column; align-items: flex-start; }
+            .info-reference .ref-item { padding: 4px 12px; }
+            .info-reference .ref-item .value.math.big { font-size: 1.1em; }
         }
         @media (max-width: 480px) {
             .header-left h1 { font-size: 15px; }
@@ -401,8 +412,8 @@
             <div class="control-group">
                 <label>🧨 Заряд</label>
                 <div class="slider-wrap">
-                    <input type="range" id="powderSlider" min="100" max="1600" value="600" step="5" />
-                    <input type="number" id="powderInput" class="number-input" min="100" max="1600" step="5" value="600" />
+                    <input type="range" id="powderSlider" min="100" max="8000" value="600" step="10" />
+                    <input type="number" id="powderInput" class="number-input" min="100" max="8000" step="10" value="600" />
                     <span class="unit">г</span>
                 </div>
             </div>
@@ -437,20 +448,42 @@
             </div>
         </div>
 
-        <!-- СПРАВОЧНАЯ ИНФОРМАЦИЯ -->
+        <!-- СПРАВОЧНАЯ ИНФОРМАЦИЯ (обновлена) -->
         <div class="info-reference">
-            <div class="ref-item"><span class="label">⚖️ Закон сохранения энергии</span></div>
-            <div class="ref-item"><span class="label">Кинетическая энергия:</span><span class="value math">Eₖ = mv²/2</span></div>
-            <div class="ref-item"><span class="label">v<sub>y</sub> =</span><span class="value math">v₀·sin(α)</span></div>
-            <div class="ref-item"><span class="label">v<sub>x</sub> =</span><span class="value math">v₀·cos(α)</span></div>
-            <div class="ref-item"><span class="label">Сопр. воздуха:</span><span class="value math">F = k·v²</span></div>
-            <div class="ref-item" style="border-color:#5a7a5a;"><span class="label">Точность попадания:</span><span class="value" style="color:#7ddfb0;">±3 м</span></div>
+            <div class="ref-item highlight-formula">
+                <span class="label">Закон сохранения энергии:</span>
+                <span class="value math big">η·m<sub>п</sub>·E<sub>уд</sub> = m<sub>сн</sub>·v²/2</span>
+            </div>
+            <div class="ref-item">
+                <span class="label">Кинетическая энергия:</span>
+                <span class="value math">Eₖ = mv²/2</span>
+            </div>
+            <div class="ref-item">
+                <span class="label">v<sub>y</sub> =</span>
+                <span class="value math">v₀·sin(α)</span>
+            </div>
+            <div class="ref-item">
+                <span class="label">v<sub>x</sub> =</span>
+                <span class="value math">v₀·cos(α)</span>
+            </div>
+            <div class="ref-item">
+                <span class="label">Сопр. воздуха:</span>
+                <span class="value math">F = k·v²</span>
+            </div>
+            <div class="ref-item" style="border-color:#5a7a5a;">
+                <span class="label">КПД взрыва:</span>
+                <span class="value" style="color:#7ddfb0;">η = 30%</span>
+            </div>
+            <div class="ref-item" style="border-color:#5a7a5a;">
+                <span class="label">Точность попадания:</span>
+                <span class="value" style="color:#7ddfb0;">±3 м</span>
+            </div>
         </div>
     </div>
 
     <script>
         // ============================================================
-        //  АРТИЛЛЕРИЯ 2D  —  ФИЗИЧЕСКАЯ МОДЕЛЬ ПОРОХА, ДОТ, ±3 м
+        //  АРТИЛЛЕРИЯ 2D  —  ДАЛЬНОСТЬ ДО 15000 м, ЗАРЯД ДО 8000 г
         // ============================================================
 
         // ---- ФИЗИЧЕСКИЕ КОНСТАНТЫ ----
@@ -461,7 +494,7 @@
         const DRAG_COEFF = 0.0012;
         const WIND_MIN = -12;
         const WIND_MAX = 12;
-        const HIT_RADIUS = 3; // точность попадания ±3 м
+        const HIT_RADIUS = 3; // ±3 м
 
         // ---- DOM ----
         const canvas = document.getElementById('gameCanvas');
@@ -499,7 +532,7 @@
             const E_powder = m_kg * POWDER_ENERGY;
             const E_projectile = E_powder * EFFICIENCY;
             const v = Math.sqrt(2 * E_projectile / MASS_SHELL);
-            return Math.min(v, 400);
+            return Math.min(v, 600); // ограничим 600 м/с для стабильности
         }
 
         // ---- СОСТОЯНИЕ ИГРЫ ----
@@ -528,40 +561,49 @@
             shotCount: 0,
         };
 
-        // ---- ГЕНЕРАЦИЯ УРОВНЕЙ ----
+        // ---- ГЕНЕРАЦИЯ УРОВНЕЙ (дистанция до 15000 м) ----
         function generateLevel(level) {
-            const baseDist = 400 + level * 180;
-            const variation = 60 + level * 15;
+            // Дистанция от 300 до 15000 м, растёт с уровнем
+            const minDist = 300;
+            const maxDist = 15000;
+            const progress = (level - 1) / (state.maxLevel - 1); // 0..1
+            const baseDist = minDist + progress * (maxDist - minDist);
+            // Добавляем случайное отклонение ±10%
+            const variation = baseDist * 0.1;
             const targetDist = baseDist + (Math.random() - 0.5) * variation;
-            const targetDistClamped = Math.max(300, Math.min(3500, targetDist));
+            const targetDistClamped = Math.max(minDist, Math.min(maxDist, Math.round(targetDist)));
 
+            // Ветер: усиливается с уровнем
             const windStrength = (level - 1) * 0.9 + (Math.random() - 0.5) * 1.8;
             const windDir = Math.random() > 0.5 ? 1 : -1;
             const wind = Math.min(WIND_MAX, Math.max(WIND_MIN, windDir * (0.5 + Math.abs(windStrength))));
 
+            // Препятствия: количество зависит от уровня, но они не должны мешать на больших дистанциях
             let obstacleCount = 0;
-            if (level >= 3) obstacleCount = 1;
-            if (level >= 6) obstacleCount = 2;
-            if (level >= 9) obstacleCount = 3;
-            if (level >= 4 && Math.random() < 0.3) obstacleCount = Math.min(3, obstacleCount + 1);
+            if (level >= 3 && level <= 8) obstacleCount = 1;
+            else if (level > 8) obstacleCount = 2;
+            // На высоких уровнях иногда 2-3
+            if (level >= 6 && Math.random() < 0.3) obstacleCount = Math.min(3, obstacleCount + 1);
 
             const obstacles = [];
+            // Препятствия размещаем только в первой трети дистанции, чтобы не мешать прицеливанию на дальние цели
+            const maxObsX = Math.min(targetDistClamped * 0.4, 3000);
             for (let i = 0; i < obstacleCount; i++) {
                 const minX = 120 + i * 200 + Math.random() * 100;
-                const maxX = targetDistClamped - 120 - (obstacleCount - i) * 150;
-                const x = Math.min(maxX, Math.max(minX, 180 + Math.random() * (targetDistClamped - 360)));
-                const width = 40 + Math.random() * 70 + level * 3;
-                const height = 12 + Math.random() * 28 + level * 1.8;
+                const maxX = maxObsX - 120 - (obstacleCount - i) * 150;
+                const x = Math.min(maxX, Math.max(minX, 180 + Math.random() * (maxObsX - 360)));
+                const width = 40 + Math.random() * 70 + level * 2;
+                const height = 12 + Math.random() * 28 + level * 1.5;
                 obstacles.push({
                     x: x,
-                    width: Math.min(width, targetDistClamped * 0.25),
-                    height: Math.min(height, 95),
+                    width: Math.min(width, targetDistClamped * 0.15),
+                    height: Math.min(height, 80),
                     color: `hsl(${30 + Math.random() * 20}, ${40 + Math.random() * 30}%, ${30 + Math.random() * 20}%)`
                 });
             }
 
             return {
-                targetDist: Math.round(targetDistClamped),
+                targetDist: targetDistClamped,
                 windSpeed: Math.round(wind * 10) / 10,
                 obstacles: obstacles,
                 level: level,
@@ -596,20 +638,22 @@
             rangeDisplay.textContent = '—';
             fireBtn.disabled = false;
 
-            let basePowder = 300 + (level - 1) * 80;
-            basePowder = Math.min(1400, Math.max(100, basePowder));
-            powderSlider.value = basePowder;
-            powderInput.value = basePowder;
-            let baseAngle = 40 + (level - 1) * 1.5;
-            baseAngle = Math.min(70, Math.max(20, baseAngle));
-            angleSlider.value = baseAngle;
-            angleInput.value = baseAngle;
+            // Начальные параметры: заряд подбираем примерно под дальность
+            let suggestedPowder = 300 + (level - 1) * 200;
+            suggestedPowder = Math.min(6000, Math.max(200, suggestedPowder));
+            powderSlider.value = suggestedPowder;
+            powderInput.value = suggestedPowder;
+            // Угол: для дальних целей угол около 45-50°
+            let suggestedAngle = 40 + (level - 1) * 1.2;
+            suggestedAngle = Math.min(60, Math.max(20, suggestedAngle));
+            angleSlider.value = suggestedAngle;
+            angleInput.value = suggestedAngle;
             updateSliders();
             draw();
         }
 
         // ---- ФИЗИКА ПОЛЁТА ----
-        function simulateShot(angleDeg, v0, mode, windSpeed, maxTime = 30) {
+        function simulateShot(angleDeg, v0, mode, windSpeed, maxTime = 60) {
             const angleRad = angleDeg * Math.PI / 180;
             const vx0 = v0 * Math.cos(angleRad);
             const vy0 = v0 * Math.sin(angleRad);
@@ -732,7 +776,7 @@
             const wind = state.windSpeed;
             const targetX = state.targetX;
 
-            const result = simulateShot(angle, v0, mode, wind, 30);
+            const result = simulateShot(angle, v0, mode, wind, 60);
 
             state.trajectoryPoints = result.points;
             state.maxHeight = result.maxHeight;
@@ -778,14 +822,15 @@
             draw();
         }
 
-        // ---- ОТРИСОВКА (полная) ----
+        // ---- ОТРИСОВКА ----
         function draw() {
             const ctx2 = ctx;
             ctx2.clearRect(0, 0, W, H);
 
             const targetX = state.targetX;
+            // Масштабируем вид в зависимости от дальности
             const maxDist = Math.max(targetX + 200, 600);
-            const maxHeightDisplay = Math.max(state.maxHeight + 30, 80);
+            const maxHeightDisplay = Math.max(state.maxHeight + 30, 120);
 
             const viewLeft = -40;
             const viewRight = Math.max(targetX + 80, 400);
@@ -898,11 +943,13 @@
             const tx = targetScreen.x;
             const ty = targetScreen.y;
 
+            // Тень
             ctx2.fillStyle = 'rgba(0,0,0,0.4)';
             ctx2.beginPath();
             ctx2.ellipse(tx, ty + 10, 36, 10, 0, 0, Math.PI * 2);
             ctx2.fill();
 
+            // Бетонный блок
             const dotWidth = 50;
             const dotHeight = 38;
             const dotX = tx - dotWidth/2;
@@ -941,6 +988,7 @@
             ctx2.fillStyle = '#4a4a4a';
             ctx2.fillRect(ambX + 4, ambY + 7, 2, 2);
 
+            // Трещины
             ctx2.strokeStyle = 'rgba(50,60,60,0.3)';
             ctx2.lineWidth = 0.5;
             ctx2.beginPath();
@@ -1075,7 +1123,7 @@
 
             // ---- ИНФО НА КАНВАСЕ ----
             ctx2.fillStyle = 'rgba(0,0,0,0.4)';
-            ctx2.roundRect(12, 12, 180, 38, 12);
+            ctx2.roundRect(12, 12, 200, 38, 12);
             ctx2.fill();
             ctx2.fillStyle = '#d0dce8';
             ctx2.font = 'bold 14px system-ui, sans-serif';
@@ -1107,7 +1155,7 @@
             const powder = parseFloat(powderSlider.value);
             const v0 = getMuzzleVelocity(powder);
             ctx2.fillStyle = 'rgba(0,0,0,0.35)';
-            ctx2.roundRect(W - 210, H - 50, 198, 38, 12);
+            ctx2.roundRect(W - 220, H - 50, 208, 38, 12);
             ctx2.fill();
             ctx2.fillStyle = '#b0c8e0';
             ctx2.font = '13px system-ui, sans-serif';
@@ -1258,28 +1306,16 @@
             };
         }
 
-        // ---- ОБНОВЛЕНИЕ UI (синхронизация ползунок ↔ число) ----
+        // ---- ОБНОВЛЕНИЕ UI ----
         function updateSliders() {
-            // Считываем значения из ползунков (они всегда актуальны)
             const angle = parseFloat(angleSlider.value);
             const powder = parseFloat(powderSlider.value);
-
-            // Обновляем состояние
             state.angle = angle;
             state.powderMass = powder;
-
-            // Обновляем числовые поля (если они не в фокусе, чтобы не перезаписывать ввод)
-            if (document.activeElement !== angleInput) {
-                angleInput.value = angle;
-            }
-            if (document.activeElement !== powderInput) {
-                powderInput.value = powder;
-            }
-
-            // Обновляем отображение единиц (уже есть)
+            if (document.activeElement !== angleInput) angleInput.value = angle;
+            if (document.activeElement !== powderInput) powderInput.value = powder;
             const v0 = getMuzzleVelocity(powder);
             velocityDisplay.textContent = `${Math.round(v0)} м/с`;
-
             if (!state.isFiring) draw();
         }
 
@@ -1295,16 +1331,14 @@
         powderInput.addEventListener('input', function() {
             let val = parseFloat(this.value);
             if (isNaN(val)) return;
-            val = Math.min(1600, Math.max(100, val));
+            val = Math.min(8000, Math.max(100, val));
             powderSlider.value = val;
             updateSliders();
         });
 
-        // Синхронизация при изменении ползунков
         angleSlider.addEventListener('input', updateSliders);
         powderSlider.addEventListener('input', updateSliders);
 
-        // ---- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ UI ----
         function updateWindDisplay() {
             const w = state.windSpeed;
             const dir = w >= 0 ? '→' : '←';
@@ -1323,9 +1357,7 @@
             }
         }
 
-        // ---- ОБРАБОТЧИКИ КНОПОК ----
         fireBtn.addEventListener('click', fire);
-
         resetBtn.addEventListener('click', () => {
             state.isFiring = false;
             state.trajectoryPoints = [];
@@ -1350,7 +1382,6 @@
             draw();
         });
 
-        // ---- КЛАВИАТУРА ----
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
@@ -1373,7 +1404,7 @@
         init();
         window.addEventListener('resize', () => { resizeCanvas(); draw(); });
 
-        console.log('🎯 Артиллерия 2D (ДОТ, ±3 м, ввод чисел) загружена!');
+        console.log('🎯 Артиллерия 2D (дальность до 15000 м, заряд до 8000 г) загружена!');
     </script>
 </body>
 </html>
