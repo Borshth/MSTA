@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Артиллерия 2D — 152 мм Гаубица</title>
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #1a1e2a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', 'Roboto', system-ui, sans-serif;
+            color: #e8ecf1;
+            user-select: none;
+            padding: 12px;
+        }
+        .game-wrapper {
+            background: #232837;
+            border-radius: 24px;
+            padding: 20px 24px 24px 24px;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7);
+            max-width: 1100px;
+            width: 100%;
+            border: 1px solid #3e4a5e;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 14px;
+            border-bottom: 2px solid #3e4a5e;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .header-left h1 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, #f5d98f, #d4a84b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .header-left .subtitle {
+            font-size: 13px;
+            color: #a0aec0;
+            background: #2f3a4a;
+            padding: 4px 14px;
+            border-radius: 40px;
+            border: 1px solid #4a5a72;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 15px;
+        }
+        .header-right .stat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #2f3a4a;
+            padding: 4px 16px;
+            border-radius: 40px;
+            border: 1px solid #3e4a5e;
+        }
+        .header-right .stat .label {
+            color: #a0aec0;
+        }
+        .header-right .stat .value {
+            font-weight: 700;
+            color: #f5d98f;
+        }
+        .stat .value.score-val {
+            color: #7ddfb0;
+        }
+
+        /* ===== CANVAS ===== */
+        .canvas-wrap {
+            background: #11161f;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 2px solid #3e4a5e;
+            position: relative;
+            margin-bottom: 16px;
+        }
+        #gameCanvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16 / 9;
+            background: #141b26;
+            cursor: crosshair;
+            touch-action: none;
+        }
+
+        /* ===== CONTROLS ===== */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px 24px;
+            align-items: center;
+            background: #1e2636;
+            padding: 16px 20px;
+            border-radius: 16px;
+            border: 1px solid #3e4a5e;
+            margin-bottom: 12px;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1 1 280px;
+        }
+        .control-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #b0c0d4;
+            min-width: 80px;
+        }
+        .control-group .slider-wrap {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .control-group input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            flex: 1;
+            height: 6px;
+            border-radius: 6px;
+            background: #3e4a5e;
+            outline: none;
+            transition: background 0.2s;
+        }
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #f5d98f;
+            cursor: pointer;
+            border: 2px solid #d4a84b;
+            box-shadow: 0 0 8px rgba(212, 168, 75, 0.3);
+            transition: 0.1s;
+        }
+        .control-group input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.12);
+        }
+        .control-group input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #f5d98f;
+            cursor: pointer;
+            border: 2px solid #d4a84b;
+        }
+        .control-group .number-input {
+            width: 70px;
+            padding: 4px 6px;
+            border-radius: 8px;
+            border: 1px solid #4a5a72;
+            background: #1a2230;
+            color: #f5d98f;
+            font-size: 15px;
+            font-weight: 700;
+            text-align: center;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .control-group .number-input:focus {
+            border-color: #f5d98f;
+            box-shadow: 0 0 8px rgba(245, 217, 143, 0.2);
+        }
+        .control-group .number-input::-webkit-inner-spin-button {
+            opacity: 0.6;
+        }
+        .control-group .unit {
+            font-size: 14px;
+            color: #a0aec0;
+            min-width: 20px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-left: auto;
+        }
+        .btn {
+            padding: 8px 22px;
+            border: none;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: inherit;
+            letter-spacing: 0.3px;
+        }
+        .btn:active {
+            transform: scale(0.95);
+        }
+        .btn-fire {
+            background: linear-gradient(135deg, #e8543a, #c43a22);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(232, 84, 58, 0.35);
+        }
+        .btn-fire:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(232, 84, 58, 0.5);
+        }
+        .btn-fire:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        .btn-reset {
+            background: #3e4a5e;
+            color: #e8ecf1;
+        }
+        .btn-reset:hover {
+            background: #4f5d75;
+        }
+        .btn-mode {
+            background: #2f3a4a;
+            color: #b0c0d4;
+            border: 1px solid #4a5a72;
+            padding: 8px 18px;
+        }
+        .btn-mode.active {
+            background: #3e6a8a;
+            color: #fff;
+            border-color: #5a8aaa;
+            box-shadow: 0 0 16px rgba(62, 106, 138, 0.3);
+        }
+        .btn-mode:hover {
+            background: #3f4e64;
+        }
+        .btn-mode.active:hover {
+            background: #4a7a9a;
+        }
+
+        /* ===== INFO BAR ===== */
+        .info-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 20px;
+            align-items: center;
+            padding: 8px 4px 0 4px;
+            font-size: 14px;
+            color: #a0aec0;
+        }
+        .info-bar .info-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .info-bar .info-item .badge {
+            background: #2f3a4a;
+            padding: 2px 12px;
+            border-radius: 30px;
+            border: 1px solid #3e4a5e;
+            font-weight: 600;
+            color: #d0d8e4;
+        }
+        .info-bar .info-item .highlight {
+            color: #f5d98f;
+            font-weight: 700;
+        }
+        .info-bar .info-item .highlight.hit {
+            color: #7ddfb0;
+        }
+        .info-bar .info-item .highlight.miss {
+            color: #e8543a;
+        }
+
+        /* ===== SPRAVOCHNAYA INFO ===== */
+        .info-reference {
+            margin-top: 14px;
+            padding: 12px 16px;
+            background: #1a2230;
+            border-radius: 14px;
+            border: 1px solid #3a4a5e;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 18px;
+            font-size: 13px;
+            color: #b8c8dc;
+            align-items: center;
+        }
+        .info-reference .ref-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #0f1620;
+            padding: 2px 12px;
+            border-radius: 30px;
+            border: 1px solid #2a3a4a;
+        }
+        .info-reference .ref-item .label {
+            opacity: 0.8;
+            font-weight: 300;
+        }
+        .info-reference .ref-item .value {
+            font-weight: 600;
+            color: #e8ecf1;
+            font-family: 'Courier New', monospace;
+        }
+        .info-reference .ref-item .value.math {
+            color: #7ddfb0;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 760px) {
+            .game-wrapper { padding: 12px; }
+            .header-left h1 { font-size: 18px; }
+            .header-left .subtitle { font-size: 11px; padding: 2px 10px; }
+            .header-right .stat { font-size: 13px; padding: 2px 10px; }
+            .controls { flex-direction: column; gap: 10px; padding: 14px 16px; }
+            .control-group { flex: 1 1 100%; width: 100%; }
+            .btn-group { width: 100%; justify-content: center; margin-left: 0; }
+            .btn { padding: 6px 16px; font-size: 13px; }
+            .control-group .number-input { width: 60px; font-size: 13px; }
+            .info-bar { font-size: 12px; gap: 6px 12px; }
+            .info-reference { font-size: 11px; gap: 6px 12px; flex-direction: column; align-items: flex-start; }
+            .info-reference .ref-item { padding: 2px 10px; }
+        }
+        @media (max-width: 480px) {
+            .header-left h1 { font-size: 15px; }
+            .header-right .stat { font-size: 11px; padding: 2px 8px; }
+            .header-right .stat .label { display: none; }
+            .btn { font-size: 12px; padding: 5px 12px; }
+            .control-group label { font-size: 12px; min-width: 60px; }
+            .control-group .number-input { width: 50px; font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-wrapper">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="header-left">
+                <h1>⚡ Артиллерия 2Д</h1>
+                <span class="subtitle">152 мм · 47 клб</span>
+            </div>
+            <div class="header-right">
+                <div class="stat">
+                    <span class="label">Уровень</span>
+                    <span class="value" id="levelDisplay">1</span>
+                </div>
+                <div class="stat">
+                    <span class="label">🎯 Счёт</span>
+                    <span class="value score-val" id="scoreDisplay">0</span>
+                </div>
+                <div class="stat">
+                    <span class="label">Выстрелов</span>
+                    <span class="value" id="shotsDisplay">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CANVAS -->
+        <div class="canvas-wrap">
+            <canvas id="gameCanvas" width="1000" height="562"></canvas>
+        </div>
+
+        <!-- CONTROLS -->
+        <div class="controls">
+            <div class="control-group">
+                <label>📐 Угол</label>
+                <div class="slider-wrap">
+                    <input type="range" id="angleSlider" min="5" max="85" value="45" step="0.5" />
+                    <input type="number" id="angleInput" class="number-input" min="5" max="85" step="0.5" value="45" />
+                    <span class="unit">°</span>
+                </div>
+            </div>
+            <div class="control-group">
+                <label>🧨 Заряд</label>
+                <div class="slider-wrap">
+                    <input type="range" id="powderSlider" min="100" max="1600" value="600" step="5" />
+                    <input type="number" id="powderInput" class="number-input" min="100" max="1600" step="5" value="600" />
+                    <span class="unit">г</span>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-fire" id="fireBtn">🔥 Огонь</button>
+                <button class="btn btn-reset" id="resetBtn">↺ Сброс</button>
+                <button class="btn btn-mode active" id="modeBtn" data-mode="arcade">🎮 Аркада</button>
+            </div>
+        </div>
+
+        <!-- INFO BAR -->
+        <div class="info-bar">
+            <div class="info-item">
+                <span>🌬️ Ветер:</span>
+                <span class="badge" id="windDisplay">→ 0.0 м/с</span>
+            </div>
+            <div class="info-item">
+                <span>🎯 Дистанция:</span>
+                <span class="badge" id="targetDistDisplay">0 м</span>
+            </div>
+            <div class="info-item">
+                <span>📏 Дальность:</span>
+                <span class="badge" id="rangeDisplay">—</span>
+            </div>
+            <div class="info-item" id="resultMessage">
+                <span>⏳ Готов к выстрелу</span>
+            </div>
+            <div class="info-item" style="margin-left:auto;">
+                <span>🚀 V₀ =</span>
+                <span class="badge" id="velocityDisplay">0 м/с</span>
+            </div>
+        </div>
+
+        <!-- СПРАВОЧНАЯ ИНФОРМАЦИЯ -->
+        <div class="info-reference">
+            <div class="ref-item"><span class="label">⚖️ Закон сохранения энергии</span></div>
+            <div class="ref-item"><span class="label">Кинетическая энергия:</span><span class="value math">Eₖ = mv²/2</span></div>
+            <div class="ref-item"><span class="label">v<sub>y</sub> =</span><span class="value math">v₀·sin(α)</span></div>
+            <div class="ref-item"><span class="label">v<sub>x</sub> =</span><span class="value math">v₀·cos(α)</span></div>
+            <div class="ref-item"><span class="label">Сопр. воздуха:</span><span class="value math">F = k·v²</span></div>
+            <div class="ref-item" style="border-color:#5a7a5a;"><span class="label">Точность попадания:</span><span class="value" style="color:#7ddfb0;">±3 м</span></div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        //  АРТИЛЛЕРИЯ 2D  —  ФИЗИЧЕСКАЯ МОДЕЛЬ ПОРОХА, ДОТ, ±3 м
+        // ============================================================
+
+        // ---- ФИЗИЧЕСКИЕ КОНСТАНТЫ ----
+        const G = 9.81;
+        const MASS_SHELL = 43.5; // кг
+        const POWDER_ENERGY = 3.5e6; // Дж/кг
+        const EFFICIENCY = 0.30;
+        const DRAG_COEFF = 0.0012;
+        const WIND_MIN = -12;
+        const WIND_MAX = 12;
+        const HIT_RADIUS = 3; // точность попадания ±3 м
+
+        // ---- DOM ----
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const angleSlider = document.getElementById('angleSlider');
+        const powderSlider = document.getElementById('powderSlider');
+        const angleInput = document.getElementById('angleInput');
+        const powderInput = document.getElementById('powderInput');
+        const fireBtn = document.getElementById('fireBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const modeBtn = document.getElementById('modeBtn');
+        const levelDisplay = document.getElementById('levelDisplay');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const shotsDisplay = document.getElementById('shotsDisplay');
+        const windDisplay = document.getElementById('windDisplay');
+        const targetDistDisplay = document.getElementById('targetDistDisplay');
+        const rangeDisplay = document.getElementById('rangeDisplay');
+        const velocityDisplay = document.getElementById('velocityDisplay');
+        const resultMessage = document.getElementById('resultMessage');
+
+        // ---- РАЗМЕР КАНВАСА ----
+        let W, H;
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            W = canvas.width = rect.width || 1000;
+            H = canvas.height = rect.height || 562;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // ---- РАСЧЁТ СКОРОСТИ ИЗ МАССЫ ПОРОХА ----
+        function getMuzzleVelocity(powderMass) {
+            const m_kg = powderMass / 1000;
+            const E_powder = m_kg * POWDER_ENERGY;
+            const E_projectile = E_powder * EFFICIENCY;
+            const v = Math.sqrt(2 * E_projectile / MASS_SHELL);
+            return Math.min(v, 400);
+        }
+
+        // ---- СОСТОЯНИЕ ИГРЫ ----
+        const state = {
+            angle: 45,
+            powderMass: 600,
+            mode: 'arcade',
+            howitzerX: 0,
+            targetX: 0,
+            targetY: 0,
+            projectile: null,
+            trail: [],
+            isFiring: false,
+            flightTime: 0,
+            maxHeight: 0,
+            rangeReached: 0,
+            level: 1,
+            score: 0,
+            shots: 0,
+            maxLevel: 12,
+            obstacles: [],
+            windSpeed: 0,
+            lastResult: null,
+            resultText: '',
+            trajectoryPoints: [],
+            shotCount: 0,
+        };
+
+        // ---- ГЕНЕРАЦИЯ УРОВНЕЙ ----
+        function generateLevel(level) {
+            const baseDist = 400 + level * 180;
+            const variation = 60 + level * 15;
+            const targetDist = baseDist + (Math.random() - 0.5) * variation;
+            const targetDistClamped = Math.max(300, Math.min(3500, targetDist));
+
+            const windStrength = (level - 1) * 0.9 + (Math.random() - 0.5) * 1.8;
+            const windDir = Math.random() > 0.5 ? 1 : -1;
+            const wind = Math.min(WIND_MAX, Math.max(WIND_MIN, windDir * (0.5 + Math.abs(windStrength))));
+
+            let obstacleCount = 0;
+            if (level >= 3) obstacleCount = 1;
+            if (level >= 6) obstacleCount = 2;
+            if (level >= 9) obstacleCount = 3;
+            if (level >= 4 && Math.random() < 0.3) obstacleCount = Math.min(3, obstacleCount + 1);
+
+            const obstacles = [];
+            for (let i = 0; i < obstacleCount; i++) {
+                const minX = 120 + i * 200 + Math.random() * 100;
+                const maxX = targetDistClamped - 120 - (obstacleCount - i) * 150;
+                const x = Math.min(maxX, Math.max(minX, 180 + Math.random() * (targetDistClamped - 360)));
+                const width = 40 + Math.random() * 70 + level * 3;
+                const height = 12 + Math.random() * 28 + level * 1.8;
+                obstacles.push({
+                    x: x,
+                    width: Math.min(width, targetDistClamped * 0.25),
+                    height: Math.min(height, 95),
+                    color: `hsl(${30 + Math.random() * 20}, ${40 + Math.random() * 30}%, ${30 + Math.random() * 20}%)`
+                });
+            }
+
+            return {
+                targetDist: Math.round(targetDistClamped),
+                windSpeed: Math.round(wind * 10) / 10,
+                obstacles: obstacles,
+                level: level,
+            };
+        }
+
+        let currentLevelData = null;
+
+        function loadLevel(level) {
+            const data = generateLevel(level);
+            currentLevelData = data;
+
+            state.targetX = data.targetDist;
+            state.targetY = 0;
+            state.windSpeed = data.windSpeed;
+            state.obstacles = data.obstacles;
+            state.level = level;
+            state.lastResult = null;
+            state.resultText = '';
+            state.trajectoryPoints = [];
+            state.isFiring = false;
+            state.projectile = null;
+            state.trail = [];
+            state.maxHeight = 0;
+            state.rangeReached = 0;
+            state.shotCount = 0;
+
+            levelDisplay.textContent = level;
+            targetDistDisplay.textContent = `${data.targetDist} м`;
+            updateWindDisplay();
+            updateResultMessage('⏳ Прицельтесь и нажмите "Огонь"', '');
+            rangeDisplay.textContent = '—';
+            fireBtn.disabled = false;
+
+            let basePowder = 300 + (level - 1) * 80;
+            basePowder = Math.min(1400, Math.max(100, basePowder));
+            powderSlider.value = basePowder;
+            powderInput.value = basePowder;
+            let baseAngle = 40 + (level - 1) * 1.5;
+            baseAngle = Math.min(70, Math.max(20, baseAngle));
+            angleSlider.value = baseAngle;
+            angleInput.value = baseAngle;
+            updateSliders();
+            draw();
+        }
+
+        // ---- ФИЗИКА ПОЛЁТА ----
+        function simulateShot(angleDeg, v0, mode, windSpeed, maxTime = 30) {
+            const angleRad = angleDeg * Math.PI / 180;
+            const vx0 = v0 * Math.cos(angleRad);
+            const vy0 = v0 * Math.sin(angleRad);
+
+            const points = [];
+            let x = 0, y = 0;
+            let vx = vx0, vy = vy0;
+            let dt = 0.025;
+            let time = 0;
+            let maxH = 0;
+            let range = 0;
+            let hitGround = false;
+
+            if (mode === 'arcade') {
+                const windAccel = windSpeed * 0.08;
+                while (time < maxTime) {
+                    vx = vx0 + windAccel * time;
+                    vy = vy0 - G * time;
+                    x = vx0 * time + 0.5 * windAccel * time * time;
+                    y = vy0 * time - 0.5 * G * time * time;
+                    if (y > maxH) maxH = y;
+                    if (y < 0 && time > 0.1) {
+                        const tPrev = time - dt;
+                        const yPrev = vy0 * tPrev - 0.5 * G * tPrev * tPrev;
+                        const frac = -yPrev / (y - yPrev);
+                        const xLand = x + (x - (vx0 * tPrev + 0.5 * windAccel * tPrev * tPrev)) * frac;
+                        points.push({ x: xLand, y: 0 });
+                        range = xLand;
+                        hitGround = true;
+                        break;
+                    }
+                    points.push({ x, y });
+                    time += dt;
+                    if (time > maxTime) break;
+                }
+                if (!hitGround && points.length > 0) range = points[points.length - 1].x;
+            } else {
+                const k = DRAG_COEFF;
+                while (time < maxTime) {
+                    const vxRel = vx - windSpeed;
+                    const vyRel = vy;
+                    const vRel = Math.sqrt(vxRel * vxRel + vyRel * vyRel);
+                    if (vRel < 0.001) break;
+                    const drag = k * vRel;
+                    const ax = -drag * vxRel;
+                    const ay = -G - drag * vyRel;
+                    vx += ax * dt;
+                    vy += ay * dt;
+                    x += vx * dt;
+                    y += vy * dt;
+                    if (y > maxH) maxH = y;
+                    if (y < 0 && time > 0.1) {
+                        const tPrev = time - dt;
+                        const yPrev = points.length > 0 ? points[points.length - 1].y : 0;
+                        if (points.length > 0) {
+                            const frac = -yPrev / (y - yPrev);
+                            const xLand = points[points.length - 1].x + (x - points[points.length - 1].x) * frac;
+                            points.push({ x: xLand, y: 0 });
+                            range = xLand;
+                            hitGround = true;
+                            break;
+                        }
+                    }
+                    points.push({ x, y });
+                    time += dt;
+                    if (time > maxTime) break;
+                }
+                if (!hitGround && points.length > 0) range = points[points.length - 1].x;
+            }
+
+            return {
+                points: points,
+                maxHeight: maxH,
+                range: range,
+                hitGround: hitGround,
+                finalX: points.length > 0 ? points[points.length - 1].x : 0,
+                finalY: points.length > 0 ? points[points.length - 1].y : 0,
+            };
+        }
+
+        // ---- ПРОВЕРКА ПОПАДАНИЯ (радиус ±3 м) ----
+        function checkHit(shotResult, targetX, targetY, obstacles) {
+            const points = shotResult.points;
+            if (points.length < 2) return { hit: false, reason: 'Не долетел' };
+
+            let landX = points[points.length - 1].x;
+            let landY = points[points.length - 1].y;
+
+            if (landX < targetX - 10) return { hit: false, reason: 'Недолёт' };
+            if (landX > targetX + 10) return { hit: false, reason: 'Перелёт' };
+
+            const distToTarget = Math.abs(landX - targetX);
+            if (distToTarget <= HIT_RADIUS) return { hit: true, reason: 'Попадание! 🎉' };
+
+            for (const obs of obstacles) {
+                const obsLeft = obs.x - obs.width / 2;
+                const obsRight = obs.x + obs.width / 2;
+                for (const p of points) {
+                    if (p.x >= obsLeft && p.x <= obsRight && p.y <= obs.height && p.y >= 0) {
+                        return { hit: false, reason: 'Препятствие' };
+                    }
+                }
+                if (landX >= obsLeft && landX <= obsRight && landY <= obs.height) {
+                    return { hit: false, reason: 'Препятствие' };
+                }
+            }
+
+            if (landX < targetX) return { hit: false, reason: 'Недолёт' };
+            else return { hit: false, reason: 'Перелёт' };
+        }
+
+        // ---- ВЫСТРЕЛ ----
+        function fire() {
+            if (state.isFiring) return;
+
+            const angle = parseFloat(angleSlider.value);
+            const powderMass = parseFloat(powderSlider.value);
+            const v0 = getMuzzleVelocity(powderMass);
+            const mode = state.mode;
+            const wind = state.windSpeed;
+            const targetX = state.targetX;
+
+            const result = simulateShot(angle, v0, mode, wind, 30);
+
+            state.trajectoryPoints = result.points;
+            state.maxHeight = result.maxHeight;
+            state.rangeReached = result.range;
+            state.isFiring = true;
+            state.shots++;
+            state.shotCount++;
+
+            const hitResult = checkHit(result, targetX, 0, state.obstacles);
+            state.lastResult = hitResult;
+
+            if (hitResult.hit) {
+                state.score += Math.max(1, Math.floor(15 - state.level * 0.6) + (state.shotCount <= 2 ? 5 : 0));
+                state.resultText = `🎯 Попадание! +${Math.max(1, Math.floor(15 - state.level * 0.6) + (state.shotCount <= 2 ? 5 : 0))} очков`;
+                updateResultMessage('🎯 ПОПАДАНИЕ!', 'hit');
+                setTimeout(() => {
+                    if (state.level < state.maxLevel) {
+                        loadLevel(state.level + 1);
+                    } else {
+                        updateResultMessage('🏆 Поздравляем! Вы прошли все уровни!', '');
+                        fireBtn.disabled = true;
+                    }
+                }, 1200);
+            } else {
+                let msg = '';
+                if (hitResult.reason === 'Недолёт') msg = '📉 Недолёт! Увеличьте заряд или угол.';
+                else if (hitResult.reason === 'Перелёт') msg = '📈 Перелёт! Уменьшите заряд или угол.';
+                else if (hitResult.reason === 'Препятствие') msg = '🧱 Препятствие! Перекиньте его.';
+                else msg = '❌ Мимо! Попробуйте снова.';
+                state.resultText = msg;
+                updateResultMessage(msg, 'miss');
+                setTimeout(() => {
+                    state.isFiring = false;
+                    fireBtn.disabled = false;
+                    draw();
+                }, 800);
+            }
+
+            shotsDisplay.textContent = state.shots;
+            scoreDisplay.textContent = state.score;
+            rangeDisplay.textContent = result.range > 0 ? `${Math.round(result.range)} м` : '—';
+            fireBtn.disabled = true;
+            draw();
+        }
+
+        // ---- ОТРИСОВКА (полная) ----
+        function draw() {
+            const ctx2 = ctx;
+            ctx2.clearRect(0, 0, W, H);
+
+            const targetX = state.targetX;
+            const maxDist = Math.max(targetX + 200, 600);
+            const maxHeightDisplay = Math.max(state.maxHeight + 30, 80);
+
+            const viewLeft = -40;
+            const viewRight = Math.max(targetX + 80, 400);
+            const viewBottom = -20;
+            const viewTop = Math.max(maxHeightDisplay + 20, 100);
+
+            const scaleX = W / (viewRight - viewLeft);
+            const scaleY = H / (viewTop - viewBottom);
+
+            function worldToScreen(wx, wy) {
+                const sx = (wx - viewLeft) * scaleX;
+                const sy = H - (wy - viewBottom) * scaleY;
+                return { x: sx, y: sy };
+            }
+
+            function getGroundY() {
+                return worldToScreen(0, 0).y;
+            }
+
+            // ---- ФОН ----
+            const skyGrad = ctx2.createLinearGradient(0, 0, 0, H);
+            skyGrad.addColorStop(0, '#0b1629');
+            skyGrad.addColorStop(0.4, '#1a2a4a');
+            skyGrad.addColorStop(0.7, '#2d4a6a');
+            skyGrad.addColorStop(1, '#4a6a5a');
+            ctx2.fillStyle = skyGrad;
+            ctx2.fillRect(0, 0, W, H);
+
+            for (let i = 0; i < 40; i++) {
+                const sx = (i * 97.3 + 50) % W;
+                const sy = (i * 53.7 + 20) % (H * 0.6);
+                const bright = 0.3 + 0.7 * ((i * 73.1) % 1);
+                ctx2.fillStyle = `rgba(255,255,240,${bright * 0.4})`;
+                ctx2.beginPath();
+                ctx2.arc(sx, sy, 1 + (i % 3) * 0.5, 0, Math.PI * 2);
+                ctx2.fill();
+            }
+
+            // ---- ЗЕМЛЯ ----
+            const groundY = getGroundY();
+            const grd = ctx2.createLinearGradient(0, groundY, 0, H);
+            grd.addColorStop(0, '#3d6b3d');
+            grd.addColorStop(0.2, '#4a7a4a');
+            grd.addColorStop(0.5, '#5a5a3a');
+            grd.addColorStop(1, '#3a3a2a');
+            ctx2.fillStyle = grd;
+            ctx2.fillRect(0, groundY, W, H - groundY);
+
+            ctx2.strokeStyle = 'rgba(80,140,70,0.3)';
+            ctx2.lineWidth = 1;
+            for (let i = 0; i < 120; i++) {
+                const x = (i * 37 + 13) % W;
+                const yOff = (i * 53 + 7) % 20;
+                ctx2.beginPath();
+                ctx2.moveTo(x, groundY + yOff);
+                ctx2.lineTo(x + 3, groundY + yOff - 6 - (i % 8));
+                ctx2.stroke();
+            }
+
+            // ---- ПРЕПЯТСТВИЯ ----
+            for (const obs of state.obstacles) {
+                const left = worldToScreen(obs.x - obs.width / 2, 0);
+                const right = worldToScreen(obs.x + obs.width / 2, 0);
+                const top = worldToScreen(obs.x, obs.height);
+                const bot = worldToScreen(obs.x, 0);
+                const w = right.x - left.x;
+                const h = bot.y - top.y;
+
+                ctx2.fillStyle = 'rgba(0,0,0,0.25)';
+                ctx2.beginPath();
+                ctx2.ellipse(left.x + w / 2, bot.y + 4, w / 2 + 6, 6, 0, 0, Math.PI * 2);
+                ctx2.fill();
+
+                const grad = ctx2.createLinearGradient(0, top.y, 0, bot.y);
+                grad.addColorStop(0, '#5a7a3a');
+                grad.addColorStop(0.4, '#4a6a2a');
+                grad.addColorStop(0.8, '#3a5a2a');
+                grad.addColorStop(1, '#2a3a1a');
+                ctx2.fillStyle = grad;
+                ctx2.beginPath();
+                ctx2.moveTo(left.x, bot.y);
+                ctx2.quadraticCurveTo(left.x + w * 0.2, top.y + 4, left.x + w / 2, top.y);
+                ctx2.quadraticCurveTo(left.x + w * 0.8, top.y + 4, right.x, bot.y);
+                ctx2.closePath();
+                ctx2.fill();
+
+                ctx2.strokeStyle = 'rgba(30,50,20,0.5)';
+                ctx2.lineWidth = 1.5;
+                ctx2.beginPath();
+                ctx2.moveTo(left.x, bot.y);
+                ctx2.quadraticCurveTo(left.x + w * 0.2, top.y + 4, left.x + w / 2, top.y);
+                ctx2.quadraticCurveTo(left.x + w * 0.8, top.y + 4, right.x, bot.y);
+                ctx2.stroke();
+
+                ctx2.strokeStyle = 'rgba(100,180,80,0.25)';
+                ctx2.lineWidth = 1;
+                for (let i = 0; i < 20; i++) {
+                    const t = (i / 19);
+                    const px = left.x + t * w;
+                    const py = top.y + 6 + (1 - Math.sin(t * Math.PI)) * h * 0.4;
+                    ctx2.beginPath();
+                    ctx2.moveTo(px, py);
+                    ctx2.lineTo(px + 2, py - 5 - (i % 6));
+                    ctx2.stroke();
+                }
+            }
+
+            // ---- ЦЕЛЬ: БЕТОННАЯ ДОТ ----
+            const targetScreen = worldToScreen(state.targetX, 0);
+            const tx = targetScreen.x;
+            const ty = targetScreen.y;
+
+            ctx2.fillStyle = 'rgba(0,0,0,0.4)';
+            ctx2.beginPath();
+            ctx2.ellipse(tx, ty + 10, 36, 10, 0, 0, Math.PI * 2);
+            ctx2.fill();
+
+            const dotWidth = 50;
+            const dotHeight = 38;
+            const dotX = tx - dotWidth/2;
+            const dotY = ty - dotHeight;
+
+            const gradWall = ctx2.createLinearGradient(dotX, dotY, dotX + dotWidth, dotY);
+            gradWall.addColorStop(0, '#7a8a8a');
+            gradWall.addColorStop(0.3, '#9aaeae');
+            gradWall.addColorStop(0.7, '#8a9a9a');
+            gradWall.addColorStop(1, '#6a7a7a');
+            ctx2.fillStyle = gradWall;
+            ctx2.fillRect(dotX, dotY, dotWidth, dotHeight);
+
+            ctx2.strokeStyle = '#4a5a5a';
+            ctx2.lineWidth = 1.5;
+            ctx2.strokeRect(dotX, dotY, dotWidth, dotHeight);
+
+            ctx2.fillStyle = '#8a9a9a';
+            ctx2.fillRect(dotX - 4, dotY - 4, dotWidth + 8, 6);
+            ctx2.strokeStyle = '#5a6a6a';
+            ctx2.lineWidth = 1;
+            ctx2.strokeRect(dotX - 4, dotY - 4, dotWidth + 8, 6);
+
+            const ambX = tx - 6;
+            const ambY = ty - 20;
+            const ambW = 12;
+            const ambH = 16;
+            ctx2.fillStyle = '#1a1a1a';
+            ctx2.fillRect(ambX, ambY, ambW, ambH);
+            ctx2.strokeStyle = '#3a3a3a';
+            ctx2.lineWidth = 1;
+            ctx2.strokeRect(ambX, ambY, ambW, ambH);
+
+            ctx2.fillStyle = '#2a2a2a';
+            ctx2.fillRect(ambX + 2, ambY + 6, ambW - 4, 4);
+            ctx2.fillStyle = '#4a4a4a';
+            ctx2.fillRect(ambX + 4, ambY + 7, 2, 2);
+
+            ctx2.strokeStyle = 'rgba(50,60,60,0.3)';
+            ctx2.lineWidth = 0.5;
+            ctx2.beginPath();
+            ctx2.moveTo(dotX + 8, dotY + 10);
+            ctx2.lineTo(dotX + 18, dotY + 22);
+            ctx2.moveTo(dotX + 30, dotY + 6);
+            ctx2.lineTo(dotX + 42, dotY + 18);
+            ctx2.moveTo(dotX + 12, dotY + 26);
+            ctx2.lineTo(dotX + 24, dotY + 32);
+            ctx2.stroke();
+
+            ctx2.fillStyle = 'rgba(200,210,210,0.3)';
+            ctx2.font = 'bold 10px monospace';
+            ctx2.textAlign = 'center';
+            ctx2.fillText('ДОТ', tx, ty - 10);
+
+            // ---- ВЕТЕР ----
+            const wind = state.windSpeed;
+            const windArrowX = 70;
+            const windArrowY = 46;
+            const windLen = Math.min(80, Math.abs(wind) * 4 + 10);
+            const windDir = wind >= 0 ? 1 : -1;
+            ctx2.save();
+            ctx2.translate(windArrowX, windArrowY);
+            ctx2.fillStyle = 'rgba(0,0,0,0.5)';
+            ctx2.roundRect(-50, -22, 100, 44, 12);
+            ctx2.fill();
+            ctx2.fillStyle = '#b0c8e0';
+            ctx2.font = 'bold 13px system-ui, sans-serif';
+            ctx2.textAlign = 'left';
+            ctx2.fillText('🌬️', -42, 6);
+            ctx2.fillStyle = '#d0dce8';
+            ctx2.font = '12px system-ui, sans-serif';
+            ctx2.textAlign = 'center';
+            const windStr = `${wind >= 0 ? '→' : '←'} ${Math.abs(wind).toFixed(1)} м/с`;
+            ctx2.fillText(windStr, 4, 6);
+            if (Math.abs(wind) > 0.3) {
+                ctx2.strokeStyle = wind >= 0 ? '#7ddfb0' : '#e88a7a';
+                ctx2.lineWidth = 3;
+                ctx2.beginPath();
+                ctx2.moveTo(-10, 0);
+                ctx2.lineTo(windDir * windLen, 0);
+                ctx2.stroke();
+                ctx2.fillStyle = wind >= 0 ? '#7ddfb0' : '#e88a7a';
+                ctx2.beginPath();
+                const tip = windDir * windLen;
+                ctx2.moveTo(tip, 0);
+                ctx2.lineTo(tip - windDir * 8, -5);
+                ctx2.lineTo(tip - windDir * 8, 5);
+                ctx2.closePath();
+                ctx2.fill();
+            }
+            ctx2.restore();
+
+            // ---- ГАУБИЦА ----
+            drawHowitzer(ctx2, worldToScreen(0, 0), state.angle);
+
+            // ---- ТРАЕКТОРИЯ ----
+            if (state.trajectoryPoints.length > 1) {
+                const pts = state.trajectoryPoints;
+                ctx2.shadowColor = 'rgba(255,200,100,0.08)';
+                ctx2.shadowBlur = 20;
+                ctx2.beginPath();
+                let first = true;
+                for (const p of pts) {
+                    const sp = worldToScreen(p.x, p.y);
+                    if (first) { ctx2.moveTo(sp.x, sp.y); first = false; }
+                    else ctx2.lineTo(sp.x, sp.y);
+                }
+                ctx2.shadowBlur = 0;
+                ctx2.strokeStyle = 'rgba(255,220,140,0.5)';
+                ctx2.lineWidth = 2.5;
+                ctx2.setLineDash([6, 8]);
+                ctx2.stroke();
+                ctx2.setLineDash([]);
+
+                const step = Math.max(1, Math.floor(pts.length / 60));
+                for (let i = 0; i < pts.length; i += step) {
+                    const sp = worldToScreen(pts[i].x, pts[i].y);
+                    const alpha = 0.15 + 0.35 * (i / pts.length);
+                    const size = 1.5 + 2.5 * (i / pts.length);
+                    ctx2.fillStyle = `rgba(255,200,120,${alpha})`;
+                    ctx2.beginPath();
+                    ctx2.arc(sp.x, sp.y, size, 0, Math.PI * 2);
+                    ctx2.fill();
+                }
+            }
+
+            // ---- СНАРЯД ----
+            if (state.isFiring && state.trajectoryPoints.length > 0) {
+                const lastIdx = state.trajectoryPoints.length - 1;
+                const last = state.trajectoryPoints[lastIdx];
+                const sp = worldToScreen(last.x, last.y);
+
+                const glow = ctx2.createRadialGradient(sp.x, sp.y, 2, sp.x, sp.y, 26);
+                glow.addColorStop(0, 'rgba(255,200,80,0.6)');
+                glow.addColorStop(0.3, 'rgba(255,150,50,0.3)');
+                glow.addColorStop(1, 'rgba(255,100,20,0)');
+                ctx2.fillStyle = glow;
+                ctx2.beginPath();
+                ctx2.arc(sp.x, sp.y, 26, 0, Math.PI * 2);
+                ctx2.fill();
+
+                const grad = ctx2.createRadialGradient(sp.x - 3, sp.y - 3, 2, sp.x, sp.y, 8);
+                grad.addColorStop(0, '#ffe080');
+                grad.addColorStop(0.5, '#e8a040');
+                grad.addColorStop(1, '#a06020');
+                ctx2.fillStyle = grad;
+                ctx2.beginPath();
+                ctx2.arc(sp.x, sp.y, 7, 0, Math.PI * 2);
+                ctx2.fill();
+
+                ctx2.fillStyle = 'rgba(255,255,255,0.35)';
+                ctx2.beginPath();
+                ctx2.arc(sp.x - 3, sp.y - 4, 3, 0, Math.PI * 2);
+                ctx2.fill();
+
+                const trailLen = Math.min(18, lastIdx);
+                for (let i = 0; i < trailLen; i++) {
+                    const idx = lastIdx - i * 2;
+                    if (idx < 0) break;
+                    const tp = state.trajectoryPoints[idx];
+                    const tsp = worldToScreen(tp.x, tp.y);
+                    const alpha = 0.5 * (1 - i / trailLen);
+                    const size = 4 * (1 - i / trailLen);
+                    ctx2.fillStyle = `rgba(255,180,80,${alpha})`;
+                    ctx2.beginPath();
+                    ctx2.arc(tsp.x, tsp.y, size, 0, Math.PI * 2);
+                    ctx2.fill();
+                }
+            }
+
+            // ---- ИНФО НА КАНВАСЕ ----
+            ctx2.fillStyle = 'rgba(0,0,0,0.4)';
+            ctx2.roundRect(12, 12, 180, 38, 12);
+            ctx2.fill();
+            ctx2.fillStyle = '#d0dce8';
+            ctx2.font = 'bold 14px system-ui, sans-serif';
+            ctx2.textAlign = 'left';
+            ctx2.fillText(`Уровень ${state.level}  ·  ${Math.round(state.targetX)} м`, 22, 38);
+
+            if (state.lastResult && state.lastResult.hit) {
+                ctx2.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx2.roundRect(W / 2 - 100, 20, 200, 44, 16);
+                ctx2.fill();
+                ctx2.fillStyle = '#7ddfb0';
+                ctx2.font = 'bold 24px system-ui, sans-serif';
+                ctx2.textAlign = 'center';
+                ctx2.fillText('🎯 ПОПАДАНИЕ!', W / 2, 54);
+            } else if (state.lastResult && !state.lastResult.hit && state.isFiring === false) {
+                ctx2.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx2.roundRect(W / 2 - 90, 20, 180, 38, 16);
+                ctx2.fill();
+                ctx2.fillStyle = '#e8a07a';
+                ctx2.font = 'bold 18px system-ui, sans-serif';
+                ctx2.textAlign = 'center';
+                let label = '❌ Мимо';
+                if (state.lastResult.reason === 'Недолёт') label = '📉 Недолёт';
+                else if (state.lastResult.reason === 'Перелёт') label = '📈 Перелёт';
+                else if (state.lastResult.reason === 'Препятствие') label = '🧱 Препятствие';
+                ctx2.fillText(label, W / 2, 46);
+            }
+
+            const powder = parseFloat(powderSlider.value);
+            const v0 = getMuzzleVelocity(powder);
+            ctx2.fillStyle = 'rgba(0,0,0,0.35)';
+            ctx2.roundRect(W - 210, H - 50, 198, 38, 12);
+            ctx2.fill();
+            ctx2.fillStyle = '#b0c8e0';
+            ctx2.font = '13px system-ui, sans-serif';
+            ctx2.textAlign = 'right';
+            ctx2.fillText(`Заряд ${Math.round(powder)} г  ·  V₀ ${Math.round(v0)} м/с`, W - 20, H - 26);
+
+            // Прицельная линия
+            if (!state.isFiring) {
+                const angleRad = state.angle * Math.PI / 180;
+                const len = 80;
+                const hx = worldToScreen(0, 0);
+                const ex = hx.x + len * Math.cos(angleRad);
+                const ey = hx.y - len * Math.sin(angleRad);
+                ctx2.strokeStyle = 'rgba(255,255,200,0.15)';
+                ctx2.lineWidth = 1;
+                ctx2.setLineDash([4, 6]);
+                ctx2.beginPath();
+                ctx2.moveTo(hx.x, hx.y);
+                ctx2.lineTo(ex, ey);
+                ctx2.stroke();
+                ctx2.setLineDash([]);
+            }
+        }
+
+        // ---- ГАУБИЦА ----
+        function drawHowitzer(ctx2, pos, angleDeg) {
+            const x = pos.x;
+            const y = pos.y;
+            const angleRad = angleDeg * Math.PI / 180;
+            const scale = Math.min(W, H) / 700;
+
+            ctx2.save();
+            ctx2.translate(x, y);
+
+            const wheelR = 18 * scale;
+            const wheelDist = 26 * scale;
+
+            ctx2.shadowColor = 'rgba(0,0,0,0.4)';
+            ctx2.shadowBlur = 8;
+            ctx2.shadowOffsetY = 3;
+            ctx2.fillStyle = '#3a3a3a';
+            ctx2.beginPath();
+            ctx2.arc(-wheelDist, 6 * scale, wheelR, 0, Math.PI * 2);
+            ctx2.fill();
+            ctx2.fillStyle = '#4a4a4a';
+            ctx2.beginPath();
+            ctx2.arc(-wheelDist, 6 * scale, wheelR * 0.6, 0, Math.PI * 2);
+            ctx2.fill();
+            ctx2.strokeStyle = '#5a5a5a';
+            ctx2.lineWidth = 1.5;
+            for (let i = 0; i < 6; i++) {
+                const a = i / 6 * Math.PI * 2;
+                ctx2.beginPath();
+                ctx2.moveTo(-wheelDist, 6 * scale);
+                ctx2.lineTo(-wheelDist + wheelR * 0.8 * Math.cos(a), 6 * scale + wheelR * 0.8 * Math.sin(a));
+                ctx2.stroke();
+            }
+            ctx2.shadowBlur = 0;
+
+            ctx2.shadowBlur = 8;
+            ctx2.shadowOffsetY = 3;
+            ctx2.fillStyle = '#3a3a3a';
+            ctx2.beginPath();
+            ctx2.arc(wheelDist, 6 * scale, wheelR, 0, Math.PI * 2);
+            ctx2.fill();
+            ctx2.fillStyle = '#4a4a4a';
+            ctx2.beginPath();
+            ctx2.arc(wheelDist, 6 * scale, wheelR * 0.6, 0, Math.PI * 2);
+            ctx2.fill();
+            ctx2.strokeStyle = '#5a5a5a';
+            ctx2.lineWidth = 1.5;
+            for (let i = 0; i < 6; i++) {
+                const a = i / 6 * Math.PI * 2;
+                ctx2.beginPath();
+                ctx2.moveTo(wheelDist, 6 * scale);
+                ctx2.lineTo(wheelDist + wheelR * 0.8 * Math.cos(a), 6 * scale + wheelR * 0.8 * Math.sin(a));
+                ctx2.stroke();
+            }
+            ctx2.shadowBlur = 0;
+            ctx2.shadowOffsetY = 0;
+
+            ctx2.shadowColor = 'rgba(0,0,0,0.3)';
+            ctx2.shadowBlur = 6;
+            ctx2.shadowOffsetY = 2;
+            ctx2.fillStyle = '#4a5a4a';
+            ctx2.beginPath();
+            ctx2.moveTo(-20 * scale, 4 * scale);
+            ctx2.lineTo(20 * scale, 4 * scale);
+            ctx2.lineTo(24 * scale, -6 * scale);
+            ctx2.lineTo(-24 * scale, -6 * scale);
+            ctx2.closePath();
+            ctx2.fill();
+
+            ctx2.fillStyle = '#5a6a5a';
+            ctx2.fillRect(-14 * scale, -14 * scale, 28 * scale, 10 * scale);
+
+            ctx2.shadowBlur = 4;
+            ctx2.shadowOffsetY = 1;
+            const barrelLen = 47 * scale * 1.1;
+            const barrelW = 4.5 * scale;
+
+            ctx2.save();
+            ctx2.translate(0, -10 * scale);
+            ctx2.rotate(-angleRad);
+
+            const grad = ctx2.createLinearGradient(0, -barrelW, 0, barrelW);
+            grad.addColorStop(0, '#6a7a6a');
+            grad.addColorStop(0.3, '#8a9a8a');
+            grad.addColorStop(0.7, '#6a7a6a');
+            grad.addColorStop(1, '#4a5a4a');
+            ctx2.fillStyle = grad;
+            ctx2.shadowColor = 'rgba(0,0,0,0.3)';
+            ctx2.shadowBlur = 8;
+            ctx2.fillRect(0, -barrelW, barrelLen, barrelW * 2);
+
+            ctx2.fillStyle = '#3a4a3a';
+            ctx2.fillRect(barrelLen - 3 * scale, -barrelW * 1.1, 3 * scale, barrelW * 2.2);
+            ctx2.fillStyle = '#1a1a1a';
+            ctx2.fillRect(barrelLen - 2 * scale, -barrelW * 0.5, 2 * scale, barrelW);
+            ctx2.fillStyle = '#5a6a5a';
+            ctx2.fillRect(barrelLen * 0.35, -barrelW * 1.2, 2.5 * scale, barrelW * 2.4);
+
+            ctx2.restore();
+
+            ctx2.fillStyle = '#5a6a5a';
+            ctx2.shadowBlur = 4;
+            ctx2.fillRect(-6 * scale, -17 * scale, 12 * scale, 6 * scale);
+            ctx2.fillStyle = '#4a5a4a';
+            ctx2.fillRect(-4 * scale, -16 * scale, 8 * scale, 3 * scale);
+
+            ctx2.shadowBlur = 0;
+            ctx2.shadowOffsetY = 0;
+            ctx2.restore();
+        }
+
+        // ---- roundRect ----
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+                if (typeof r === 'number') r = { tl: r, tr: r, br: r, bl: r };
+                const rad = r.tl || r || 0;
+                this.moveTo(x + rad, y);
+                this.arcTo(x + w, y, x + w, y + h, rad);
+                this.arcTo(x + w, y + h, x, y + h, rad);
+                this.arcTo(x, y + h, x, y, rad);
+                this.arcTo(x, y, x + w, y, rad);
+                this.closePath();
+                return this;
+            };
+        }
+
+        // ---- ОБНОВЛЕНИЕ UI (синхронизация ползунок ↔ число) ----
+        function updateSliders() {
+            // Считываем значения из ползунков (они всегда актуальны)
+            const angle = parseFloat(angleSlider.value);
+            const powder = parseFloat(powderSlider.value);
+
+            // Обновляем состояние
+            state.angle = angle;
+            state.powderMass = powder;
+
+            // Обновляем числовые поля (если они не в фокусе, чтобы не перезаписывать ввод)
+            if (document.activeElement !== angleInput) {
+                angleInput.value = angle;
+            }
+            if (document.activeElement !== powderInput) {
+                powderInput.value = powder;
+            }
+
+            // Обновляем отображение единиц (уже есть)
+            const v0 = getMuzzleVelocity(powder);
+            velocityDisplay.textContent = `${Math.round(v0)} м/с`;
+
+            if (!state.isFiring) draw();
+        }
+
+        // ---- ОБРАБОТЧИКИ ДЛЯ ПОЛЕЙ ВВОДА ----
+        angleInput.addEventListener('input', function() {
+            let val = parseFloat(this.value);
+            if (isNaN(val)) return;
+            val = Math.min(85, Math.max(5, val));
+            angleSlider.value = val;
+            updateSliders();
+        });
+
+        powderInput.addEventListener('input', function() {
+            let val = parseFloat(this.value);
+            if (isNaN(val)) return;
+            val = Math.min(1600, Math.max(100, val));
+            powderSlider.value = val;
+            updateSliders();
+        });
+
+        // Синхронизация при изменении ползунков
+        angleSlider.addEventListener('input', updateSliders);
+        powderSlider.addEventListener('input', updateSliders);
+
+        // ---- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ UI ----
+        function updateWindDisplay() {
+            const w = state.windSpeed;
+            const dir = w >= 0 ? '→' : '←';
+            windDisplay.textContent = `${dir} ${Math.abs(w).toFixed(1)} м/с`;
+            windDisplay.style.color = Math.abs(w) > 5 ? '#e8a07a' : '#b0c8e0';
+        }
+
+        function updateResultMessage(text, type) {
+            resultMessage.innerHTML = `<span>${text}</span>`;
+            if (type === 'hit') {
+                resultMessage.style.color = '#7ddfb0';
+            } else if (type === 'miss') {
+                resultMessage.style.color = '#e8a07a';
+            } else {
+                resultMessage.style.color = '#a0aec0';
+            }
+        }
+
+        // ---- ОБРАБОТЧИКИ КНОПОК ----
+        fireBtn.addEventListener('click', fire);
+
+        resetBtn.addEventListener('click', () => {
+            state.isFiring = false;
+            state.trajectoryPoints = [];
+            state.lastResult = null;
+            state.resultText = '';
+            fireBtn.disabled = false;
+            updateResultMessage('⏳ Сброс. Прицельтесь и нажмите "Огонь"', '');
+            rangeDisplay.textContent = '—';
+            draw();
+        });
+
+        modeBtn.addEventListener('click', () => {
+            if (state.mode === 'arcade') {
+                state.mode = 'realistic';
+                modeBtn.textContent = '🎯 Реалистичный';
+                modeBtn.classList.add('active');
+            } else {
+                state.mode = 'arcade';
+                modeBtn.textContent = '🎮 Аркада';
+                modeBtn.classList.remove('active');
+            }
+            draw();
+        });
+
+        // ---- КЛАВИАТУРА ----
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                if (!fireBtn.disabled) fire();
+            }
+            if (e.key === 'r' || e.key === 'R') resetBtn.click();
+            if (e.key === 'm' || e.key === 'M') modeBtn.click();
+        });
+
+        // ---- ИНИЦИАЛИЗАЦИЯ ----
+        function init() {
+            loadLevel(1);
+            function animate() {
+                if (state.isFiring && state.trajectoryPoints.length > 0) draw();
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        init();
+        window.addEventListener('resize', () => { resizeCanvas(); draw(); });
+
+        console.log('🎯 Артиллерия 2D (ДОТ, ±3 м, ввод чисел) загружена!');
+    </script>
+</body>
+</html>
